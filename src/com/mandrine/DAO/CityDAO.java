@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +39,25 @@ public class CityDAO {
 	public static void updateVaccinatedCount(City city) throws SQLException
 	{
 		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("UPDATE \"CITY\" SET \"VACCINATED_COUNT\"=\"VACCINATED_COUNT\"+1 WHERE \"CITY_ID\"=?;");
+		PreparedStatement stmt=connection.prepareStatement("UPDATE \"CITY\" SET \"VACCINATED_COUNT\"=\"VACCINATED_COUNT\"+1,\"STOCK\" =\"STOCK\"-1 WHERE \"CITY_ID\"=?;");
 		stmt.setInt(1,city.getCityID());
 		stmt.executeUpdate();
 	
+	}
+	public static void addCity(City city) throws SQLException
+	{
+		connection=DBConnectionUtil.openConnection();
+		PreparedStatement stmt=connection.prepareStatement("INSERT INTO \"CITY\" (\"NAME\",\"STOCK\",\"VACCINATED_COUNT\") VALUES(?,?,0);",Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1,city.getName());
+		stmt.setInt(2,city.getStock());
+		stmt.executeUpdate();
+		ResultSet keys=stmt.getGeneratedKeys();
+		if(keys.next())
+		{
+			city.setCityID((int) keys.getLong(1));
+		}
+		city.setVaccinatedCount(0);
+		
 	}
 
 }

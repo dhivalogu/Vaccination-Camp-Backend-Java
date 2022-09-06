@@ -209,13 +209,16 @@ public class AppServlet extends HttpServlet {
 			switch(currentResource)
 			{
 				case "accounts" :   currentResource=resourceQueue.poll();
+					
 									if(currentResource.equals("authentication"))
 									{
+										
 										Account account=new Account();
 										account.setUsername(requestJSON.getString("username"));
 										account.setPassword(requestJSON.getString("password"));
 										if(AccountService.userAuthentication(account))
 										{
+											
 											responseJSON.put("username",account.getUsername());
 											responseJSON.put("accessLevel", account.getAccessLevel());
 											responseJSON.put("status-code",200);
@@ -224,11 +227,22 @@ public class AppServlet extends HttpServlet {
 										{
 											responseJSON.put("status-code",401);
 										}
+										response.getWriter().print(responseJSON);
 										break;
 									}
 									else throw new InvalidRequestException();
 				case "cities"   :   currentResource=resourceQueue.poll();
-									if(currentResource.equals("camps"))
+				                    if(currentResource==null) {
+				                    	City city=new City();
+				                    	city.setName(requestJSON.getString("cityName"));
+				                    	city.setStock(requestJSON.getInt("stock"));
+				                    	AdminService.addCity(city);
+				                    	response.getWriter().print(new Gson().toJson(city));
+				                    	response.setStatus(201);
+				                    	break;
+				                    	
+				                    }
+				                    else if(currentResource.equals("camps"))
 									{
 										currentResource=resourceQueue.poll();
 										if(currentResource==null)
@@ -242,6 +256,7 @@ public class AppServlet extends HttpServlet {
 										    AdminService.addCamp(camp);
 										    responseJSON.put("message","Camp Added Successfully");
 										    responseJSON.put("status-code",201);
+										    response.getWriter().print(responseJSON);
 										}
 										else if(currentResource.equals("slots"))
 										{
@@ -266,6 +281,7 @@ public class AppServlet extends HttpServlet {
 									}
 									else throw new InvalidRequestException();
 									break;
+				                    
 					
 				case "people"   :   People person=new People();
 									person.setID(requestJSON.getString("AADHAR"));
@@ -278,6 +294,7 @@ public class AppServlet extends HttpServlet {
 									responseJSON.put("ID",person.getID());
 									responseJSON.put("status-code",201);
 									responseJSON.put("status", "Account Created Successfully");
+									response.getWriter().print(responseJSON);
 									break;
 			}
 			
@@ -307,7 +324,7 @@ public class AppServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		response.getWriter().print(responseJSON);
+		
 	}
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{

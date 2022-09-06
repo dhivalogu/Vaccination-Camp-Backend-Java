@@ -17,6 +17,8 @@ import com.mandrine.exception.InvalidRequestException;
 import com.mandrine.model.RequestBody;
 
 public class CommonUtil {
+	
+	static List<String> resourceList=Arrays.asList("cities","camps","slots","accounts","authentication","people","bookings");
 
 	public static Boolean isNumber(String value)
 	{
@@ -35,21 +37,17 @@ public class CommonUtil {
    public static Queue<String> parseRequest(HttpServletRequest request) throws Exception
    {
 
-	   RequestBody reqObject=new RequestBody();
+	  
 	   String[] requestResources=request.getRequestURI().replace("/VaccinationApp/api/", "").split("/");
+	   for(String resource:requestResources)
+	   {
+		   if(!isNumber(resource) && !resourceList.contains(resource)) throw new InvalidRequestException();
+	   }
 	   Queue<String> resourceQueue=new LinkedList<String>();
 	   resourceQueue.addAll(Arrays.asList(requestResources));
 	   System.out.print(resourceQueue);
 	   return resourceQueue;
-		/*
-		 * reqObject.resourceQueue.addAll(Arrays.asList(requestResources)); int lastIndex= requestResources.length-1; String lastElement=requestResources[lastIndex];
-		 * 
-		 * if((isNumber(lastElement) && requestResources.length==1) || (lastElement.equals("") && requestResources.length==1)) { throw new InvalidRequestException(); }
-		 * 
-		 * if(isNumber(lastElement)) { reqObject.resourceQueue.poll(); reqObject.setID(lastElement); }
-		 * 
-		 * return reqObject;
-		 */
+		
    }
    public static Boolean isValidAadhar(String aadharID)
    {

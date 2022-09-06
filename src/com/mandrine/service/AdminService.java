@@ -66,4 +66,12 @@ public class AdminService {
 		CityDAO.updateVaccinatedCount(city);
 		
 	}
+	
+	//To add a new city
+	
+	public static void addCity(City city) throws SQLException
+	{
+		CityDAO.addCity(city);
+		CacheDB.getCityCache().put(city.getCityID(), city);
+	}
 }
