@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="VaccinationApp">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="postgresql-42.4.2.jar" deploy-path="/WEB-INF/lib/" handle="module:/resource/postgresql-42.4.2/postgresql-42.4.2">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="gson-2.9.1.jar" deploy-path="/WEB-INF/lib/" handle="module:/resource/gson-2.9.1/gson-2.9.1">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="json-20190722.jar" deploy-path="/WEB-INF/lib/" handle="module:/resource/json-20190722/json-20190722">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="VaccinationApp"/>
+        <property name="java-output-path" value="/VaccinationApp/build/classes"/>
+    </wb-module>
+</project-modules>
