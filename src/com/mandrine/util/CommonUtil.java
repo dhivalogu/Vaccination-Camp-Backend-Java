@@ -41,7 +41,7 @@ public class CommonUtil {
 	   String[] requestResources=request.getRequestURI().replace("/VaccinationApp/api/", "").split("/");
 	   for(String resource:requestResources)
 	   {
-		   if(!isNumber(resource) && !resourceList.contains(resource)) throw new InvalidRequestException();
+		   if(!CommonUtil.isValidAadhar(resource)&& !isNumber(resource) && !resourceList.contains(resource)) throw new InvalidRequestException();
 	   }
 	   Queue<String> resourceQueue=new LinkedList<String>();
 	   resourceQueue.addAll(Arrays.asList(requestResources));
