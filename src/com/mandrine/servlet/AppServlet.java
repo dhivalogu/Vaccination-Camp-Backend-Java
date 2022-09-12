@@ -279,31 +279,27 @@ public class AppServlet extends HttpServlet {
 			String currentResource = resourceQueue.poll();
 			if (currentResource.equals("cities")) {
 				currentResource = resourceQueue.poll();
-				if (currentResource != null) {
-					if (CommonUtil.isNumber(currentResource)) {
-						int stock = requestJSON.getInt("stock");
-						int cityID = Integer.parseInt(currentResource);
-						AdminService.updateStock(cityID, stock);
-						responseJSON.put("message","Stock of given city updated successfully");
-					
-					}
-					else throw new InvalidRequestException();
-
+				if (CommonUtil.isNumber(currentResource)) {
+					int stock = requestJSON.getInt("stock");
+					int cityID = Integer.parseInt(currentResource);
+					AdminService.updateStock(cityID, stock);
+					responseJSON.put("message", "Stock of given city updated successfully");
+				} else if (currentResource.equals("camps")) {
+					if (resourceQueue.poll().equals("slots") && resourceQueue.poll().equals("bookings")) {
+						Booking bookingDetails = CacheDB.getBookingCache().get(requestJSON.getInt("bookingID"));
+						AdminService.vaccinated(bookingDetails);
+						responseJSON.put("message", "" + bookingDetails.getAADHAR() + " got vaccinated");
+					} else
+						throw new InvalidRequestException();
 				} else
 					throw new InvalidRequestException();
-			} else if (resourceQueue.poll().equals("camps") && resourceQueue.poll().equals("slots") && resourceQueue.poll().equals("bookings")) {
-				Booking bookingDetails = CacheDB.getBookingCache().get(requestJSON.getInt("bookingID"));
-				AdminService.vaccinated(bookingDetails);
-				responseJSON.put("message", "" + bookingDetails.getAADHAR() + " got vaccinated");
-				
 			} else
 				throw new InvalidRequestException();
 		} catch (Exception e) {
 			response.getWriter().print(e);
 			response.setStatus(404);
 			e.printStackTrace();
-		} 
-		finally {
+		} finally {
 			response.getWriter().print(responseJSON);
 		}
 
