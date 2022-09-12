@@ -2,6 +2,7 @@
 package com.mandrine.model;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mandrine.cache.CacheDB;
@@ -12,8 +13,12 @@ public class City {
  private int stock;
  private int vaccinatedCount;
  private Camp camp;
+ private List<Camp> campList=new ArrayList<Camp>();
  
- public void setCityID(int cityID)
+ public List<Camp> getCampList() {
+	return campList;
+}
+public void setCityID(int cityID)
  {
 	 this.cityID=cityID;
  }
@@ -57,5 +62,9 @@ public class City {
  public Camp getCamp()
  {
 	 return this.camp;
+ }
+ public void addToCampList(Camp camp)
+ {
+	 campList.add(camp);
  }
 }

@@ -24,10 +24,10 @@ public class AdminService {
 
 	public static void addCamp(Camp camp) throws ExistingDataException, SQLException
 	{
-		if(CacheDB.getCityCache().get(camp.getCityID()).getCamp()!=null)
-		{
-			throw new ExistingDataException("Only one camp allowed per city");
-		}
+//		if(CacheDB.getCityCache().get(camp.getCityID()).getCamp()!=null)
+//		{
+//			throw new ExistingDataException("Only one camp allowed per city");
+//		}
 		CampDAO.addCamp(camp);
 		CacheDB.loadOverallData();
 	}
@@ -80,6 +80,6 @@ public class AdminService {
 		City city=CacheDB.getCityCache().get(cityID);
 		if(city==null) throw new ResourceNotFoundException("Given city doesn't exist in databse");
 		CityDAO.updateStock(city,stock);
-		city.updateStock(stock);
+		city.setStock(stock);
 	}
 }

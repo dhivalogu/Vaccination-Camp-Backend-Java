@@ -36,6 +36,7 @@ public class CampDAO {
 			camp.setEndDate(date.substring(12,22));
 			camp.calcAvailDate();
 			CacheDB.getCityCache().get(cityID).setCamp(camp);
+			CacheDB.getCityCache().get(cityID).addToCampList(camp);
 			campData.put(campID,camp);
 		}
 		DBConnectionUtil.closeConnection();
