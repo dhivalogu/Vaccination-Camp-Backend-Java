@@ -57,6 +57,17 @@ public class CityDAO {
 			city.setCityID((int) keys.getLong(1));
 		}
 		city.setVaccinatedCount(0);
+		DBConnectionUtil.closeConnection();
+		
+	}
+	public static void updateStock(City city, int stock) throws SQLException 
+	{
+		connection=DBConnectionUtil.openConnection();
+		PreparedStatement stmt = connection.prepareStatement("UPDATE \"CITY\" SET \"STOCK\"=? WHERE \"CITY_ID\"=?;");
+		stmt.setInt(1,stock);
+		stmt.setInt(2,city.getCityID());
+		stmt.executeUpdate();
+		DBConnectionUtil.closeConnection();
 		
 	}
 

@@ -12,6 +12,7 @@ import com.mandrine.DAO.PeopleDAO;
 import com.mandrine.DAO.SlotDAO;
 import com.mandrine.cache.CacheDB;
 import com.mandrine.exception.ExistingDataException;
+import com.mandrine.exception.ResourceNotFoundException;
 import com.mandrine.model.Booking;
 import com.mandrine.model.Camp;
 import com.mandrine.model.City;
@@ -73,5 +74,12 @@ public class AdminService {
 	{
 		CityDAO.addCity(city);
 		CacheDB.getCityCache().put(city.getCityID(), city);
+	}
+	public static void updateStock(int cityID,int stock) throws SQLException, ResourceNotFoundException
+	{
+		City city=CacheDB.getCityCache().get(cityID);
+		if(city==null) throw new ResourceNotFoundException("Given city doesn't exist in databse");
+		CityDAO.updateStock(city,stock);
+		city.updateStock(stock);
 	}
 }
