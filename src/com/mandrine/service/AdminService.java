@@ -36,7 +36,7 @@ public class AdminService {
 		LocalDate start=camp.getBeginDate().toLocalDate();
 		LocalDate end=camp.getEndDate().toLocalDate();
 		
-		while(!start.isAfter(end))
+		do
 		{
 			for(String session:slotSession)
 			{
@@ -50,7 +50,7 @@ public class AdminService {
 				
 			}
 			start=start.plusDays(1);
-		}
+		}while(!start.isAfter(end));
 	
 	}
 	public static void vaccinated(Booking bookingDetails) throws SQLException
