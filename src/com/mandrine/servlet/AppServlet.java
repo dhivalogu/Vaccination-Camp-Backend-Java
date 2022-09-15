@@ -259,13 +259,17 @@ public class AppServlet extends HttpServlet {
 		} catch (JSONException e) {
 			responseJSON.put("Error", "Proper Request Body Required!");
 			e.printStackTrace();
+			response.getWriter().print(responseJSON);
 
 		} catch (ExistingDataException e) {
+			System.out.print("Here");
 			responseJSON.put("status-code", "409");
 			responseJSON.put("Error", e);
+			response.getWriter().print(responseJSON);
 		} catch (Exception e) {
 			responseJSON.put("Error", e);
 			e.printStackTrace();
+			response.getWriter().print(responseJSON);
 		}
 
 	}
