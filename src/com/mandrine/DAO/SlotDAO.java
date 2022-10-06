@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 import com.mandrine.model.Camp;
 import com.mandrine.model.Slot;
 import com.mandrine.util.DBConnectionUtil;
@@ -21,6 +22,8 @@ public class SlotDAO {
 	{
 		  SlotDAO.connection= DBConnectionUtil.openConnection();
 		  PreparedStatement stmt=connection.prepareStatement("INSERT INTO \"SLOTS\"(\"DATE\",\"SESSION\",\"CAPACITY\",\"BOOKINGS\",\"CAMP_ID\") VALUES (?,?,?,?,?)",Statement.RETURN_GENERATED_KEYS);
+		  DBResource.SLOTS.getConditionMap(slot);
+		  DBResource.SLOTS.create(slot);
 		  stmt.setDate(1,slot.getDate());
 		  stmt.setString(2,slot.getSession());
 		  stmt.setInt(3, slot.getCapacity());
@@ -39,9 +42,7 @@ public class SlotDAO {
 	
 	public static HashMap<Integer,Slot> getSlotData () throws SQLException
 	{
-		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("SELECT * FROM \"SLOTS\"");
-		ResultSet rs=stmt.executeQuery();
+		ResultSet rs=DBResource.SLOTS.fetchAll(new Slot());
 		HashMap<Integer,Slot> slotData=new HashMap<Integer,Slot>();
 		while(rs.next())
 		{

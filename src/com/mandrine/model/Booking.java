@@ -3,7 +3,7 @@ package com.mandrine.model;
 
 import java.sql.Date;
 
-public class Booking {
+public class Booking extends Resource {
 
 	private int slotID;
 	private int bookingID;

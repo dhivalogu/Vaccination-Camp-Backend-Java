@@ -39,9 +39,11 @@ public  class CacheDB {
      /**
       * To load data from the City table in database to the cache  
       * @throws SQLException
+     * @throws SecurityException 
+     * @throws NoSuchFieldException 
       */
      
-     public static void loadCityCache() throws SQLException
+     public static void loadCityCache() throws SQLException,SecurityException
      {
     	 cityCache=CityDAO.getCityData();
      }
@@ -69,7 +71,7 @@ public  class CacheDB {
     	 return peopleCache;
      }
      
-     public static HashMap<Integer, City> getCityCache() throws SQLException
+     public static HashMap<Integer, City> getCityCache() throws SQLException,SecurityException
      {
     	 if(cityCache==null)
     	 {

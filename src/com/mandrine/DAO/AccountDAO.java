@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 import com.mandrine.model.Account;
 import com.mandrine.util.DBConnectionUtil;
 
@@ -16,10 +17,7 @@ public class AccountDAO {
 public static Boolean AccountVerified(Account account) throws SQLException
   {
 	  AccountDAO.connection= DBConnectionUtil.openConnection();
-	  PreparedStatement stmt= connection.prepareStatement("SELECT \"ACCESS_LEVEL\" FROM \"CREDENTIALS\" WHERE \"USERNAME\"=? AND \"PASSWORD\"=?");;
-	  stmt.setString(1,account.getUsername());
-	  stmt.setString(2,account.getPassword());
-	  ResultSet rs= stmt.executeQuery();
+	  ResultSet rs= DBResource.CREDENTIALS.fetchAll(account);;
 	  if(rs.next())
 	  	{
 	  		int accessLevel=Integer.parseInt(rs.getString("ACCESS_LEVEL"));

@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 import com.mandrine.model.Camp;
 import com.mandrine.service.AdminService;
 import com.mandrine.service.BookingService;
@@ -20,8 +21,7 @@ public class CampDAO {
 	public static HashMap<Integer,Camp> getCampData() throws SQLException
 	{
 		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("SELECT * FROM \"CAMP\"");
-		ResultSet rs=stmt.executeQuery();
+		ResultSet rs=DBResource.CAMPS.fetchAll(new Camp());
 		HashMap<Integer,Camp> campData=new HashMap<Integer,Camp>();
 		while(rs.next())
 		{
@@ -30,7 +30,7 @@ public class CampDAO {
 			int campID=rs.getInt("CAMP_ID");
 			camp.setCampID(campID);
 			camp.setAddress(rs.getString("ADDRESS"));
-			camp.setCityID(cityID);	
+			camp.setCityID(cityID);
 			String date=rs.getString("DATE");
 			camp.setBeginDate(date.substring(1,11));
 			camp.setEndDate(date.substring(12,22));

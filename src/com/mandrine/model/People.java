@@ -4,7 +4,7 @@ package com.mandrine.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class People {
+public class People extends Resource{
 	
 	private String AadharID;
 	private String firstName;

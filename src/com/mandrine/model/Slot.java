@@ -5,14 +5,28 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Slot {
+import com.mandrine.db.Column;
 
+public class Slot extends Resource {
+
+	@Column(name="SLOT_ID")
 	private int slotID;
+	
+	@Column(name="SESSION")
 	private String session;
+	
+	@Column(name="CAPACITY")
 	private int capacity;
+	
+	@Column(name="BOOKINGS")
 	private int bookings;
+	
+	@Column(name="CAMP_ID")
 	private int campID;
+	
+	@Column(name="DATE")
 	private Date date;
+
 	private String address;
 	private List<Booking> bookingList=new ArrayList<Booking>();
 	

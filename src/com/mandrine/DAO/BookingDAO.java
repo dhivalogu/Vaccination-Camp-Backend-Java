@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 import com.mandrine.model.Booking;
 import com.mandrine.service.BookingService;
 import com.mandrine.util.DBConnectionUtil;
@@ -34,9 +35,7 @@ public class BookingDAO {
 	}
 	public static HashMap<Integer,Booking> getBookingData() throws SQLException
 	{
-		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("SELECT * FROM \"BOOKING_DATA\"");
-		ResultSet rs=stmt.executeQuery();
+		ResultSet rs=DBResource.BOOKINGS.fetchAll(new Booking());
 		HashMap<Integer,Booking> bookingData=new HashMap<Integer,Booking>();
 		while(rs.next())
 		{

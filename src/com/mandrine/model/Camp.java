@@ -10,7 +10,7 @@ import java.util.List;
 import com.mandrine.cache.CacheDB;
 import com.mandrine.util.DateFormatUtil;
 
-public class Camp {
+public class Camp extends Resource {
 	private int campID;
 	private int cityID;
 	private Date beginDate;

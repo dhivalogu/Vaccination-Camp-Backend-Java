@@ -13,6 +13,7 @@ import com.mandrine.util.DBConnectionUtil;
 import com.mandrine.util.DateFormatUtil;
 import org.postgresql.util.PSQLException;
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 
 public class PeopleDAO {
 	private static  Connection connection=null;
@@ -31,9 +32,7 @@ public class PeopleDAO {
 	}
 	public static HashMap<String,People> getPeopleData() throws SQLException
 	{
-		PeopleDAO.connection= DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("SELECT * FROM \"PEOPLE\";");
-		ResultSet rs=stmt.executeQuery();
+		ResultSet rs=DBResource.PEOPLE.fetchAll(new People());
 		HashMap<String,People> peopleData=new HashMap<String,People>();
 		while(rs.next())
 		{
@@ -48,7 +47,6 @@ public class PeopleDAO {
 			peopleData.put(id,person);
 			
 		}
-		DBConnectionUtil.closeConnection();
 		return peopleData;
 	}
 	public static void updateDosageCount(People person) throws SQLException

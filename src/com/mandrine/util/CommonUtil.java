@@ -18,7 +18,7 @@ import com.mandrine.model.RequestBody;
 
 public class CommonUtil {
 	
-	static List<String> resourceList=Arrays.asList("cities","camps","slots","accounts","authentication","people","bookings");
+	static List<String> resourceList=Arrays.asList("cities","camps","slots","accounts","authentication","people","bookings","invalidate");
 
 	public static Boolean isNumber(String value)
 	{

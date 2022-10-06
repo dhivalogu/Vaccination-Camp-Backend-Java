@@ -6,11 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.Column;
 
-public class City {
- private int cityID;
+public class City extends Resource{
+ @Column(name="CITY_ID")
+ public int cityID;
+ 
+ @Column(name="NAME")
  private String name;
+ 
+ @Column(name="STOCK")
  private int stock;
+ 
+ @Column(name="VACCINATED_COUNT")
  private int vaccinatedCount;
  private Camp camp;
  private List<Camp> campList=new ArrayList<Camp>();

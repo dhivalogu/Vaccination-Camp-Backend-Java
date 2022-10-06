@@ -3,13 +3,16 @@ package com.mandrine.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +31,7 @@ import com.mandrine.model.Slot;
 import com.mandrine.service.AccountService;
 import com.mandrine.service.AdminService;
 import com.mandrine.service.BookingService;
+import com.mandrine.util.AuthenticationUtil;
 import com.mandrine.util.CommonUtil;
 import com.mandrine.util.JSONUtil;
 
@@ -35,8 +39,9 @@ public class AppServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-
+			
 			Queue<String> resourceQueue = CommonUtil.parseRequest(request);
+			AuthenticationUtil.AuthenticateRequest(request);
 			String responseJSON = null;
 			String currentResource = null;
 			List responseList = null;
@@ -118,15 +123,18 @@ public class AppServlet extends HttpServlet {
 			case "people":
 				currentResource = resourceQueue.poll();
 				if (currentResource == null) {
-					List<People> people = new ArrayList<People>(AccountService.getPeopleData());
-					if (request.getParameter("filter") != null) {
-						if (request.getParameter("filter").equals("vaccinated")) {
-							people.removeIf(person -> person.getDosageCount() < 2);
-						} else
-							throw new InvalidRequestException("Invalid Filter Value");
+					HttpSession session=request.getSession(false);
+					if(session.getAttribute("accessLevel").equals("1"))
+					{
+						People person = AccountService.getPeopleByID((String) session.getAttribute("user"));
+						responseJSON = new Gson().toJson(person);
 					}
-
-					responseJSON = new Gson().toJson(people);
+					else
+					{
+						List<People> people = new ArrayList<People>(AccountService.getPeopleData());
+						responseJSON = new Gson().toJson(people);
+					}
+					
 				} else if (CommonUtil.isValidAadhar(currentResource)) {
 					People person = AccountService.getPeopleByID(currentResource);
 					currentResource = resourceQueue.poll();
@@ -142,8 +150,20 @@ public class AppServlet extends HttpServlet {
 				} else
 					throw new InvalidRequestException();
 				break;
-
+			case "authentication":
+				AuthenticationUtil.AuthenticateRequest(request);
+				HttpSession session=request.getSession(false);
+				HashMap<String,String> authentication=new HashMap<String,String>();
+				authentication.put("user",(String) session.getAttribute("user"));
+				authentication.put("accessLevel",(String)session.getAttribute("accessLevel"));
+				responseJSON = new Gson().toJson(authentication);
+				break;
+			case "invalidate":
+				HttpSession session1=request.getSession(false);
+				session1.invalidate();
+				
 			}
+			
 
 			response.getWriter().print(responseJSON);
 
@@ -152,7 +172,12 @@ public class AppServlet extends HttpServlet {
 			responseJSON.put("Error", "No data found for given values");
 			response.getWriter().print(responseJSON);
 			e.printStackTrace();
-		} catch (Exception e) {
+		} 
+		catch(IllegalAccessException e)
+		{
+			response.setStatus(401);
+		}
+		catch (Exception e) {
 			JSONObject responseJSON = new JSONObject();
 			responseJSON.put("Error", e);
 			response.getWriter().print(responseJSON);
@@ -161,10 +186,11 @@ public class AppServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		JSONObject responseJSON = new JSONObject();
+		
 
 		try {
+			AuthenticationUtil.AuthenticateRequest(request);
 			JSONObject requestJSON = JSONUtil.toJSON(request);
 			Queue<String> resourceQueue = CommonUtil.parseRequest(request);
 			String currentResource = resourceQueue.poll();
@@ -178,7 +204,10 @@ public class AppServlet extends HttpServlet {
 					account.setUsername(requestJSON.getString("username"));
 					account.setPassword(requestJSON.getString("password"));
 					if (AccountService.userAuthentication(account)) {
-
+						HttpSession session=request.getSession();
+						session.setAttribute("user",account.getUsername());
+						session.setAttribute("accessLevel",Integer.toString(account.getAccessLevel()));
+						session.setAttribute("IP", request.getRemoteAddr());
 						responseJSON.put("username", account.getUsername());
 						responseJSON.put("accessLevel", account.getAccessLevel());
 						responseJSON.put("status-code", 200);
@@ -249,6 +278,7 @@ public class AppServlet extends HttpServlet {
 				responseJSON.put("status", "Account Created Successfully");
 				response.getWriter().print(responseJSON);
 				break;
+			
 			}
 
 		} catch (SlotOverflowException e) {

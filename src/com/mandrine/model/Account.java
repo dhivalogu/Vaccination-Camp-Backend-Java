@@ -1,9 +1,17 @@
 
 package com.mandrine.model;
 
-public class Account {
+import com.mandrine.db.Column;
+
+public class Account extends Resource {
+	
+	@Column(name="USERNAME")
 	private String username;
+	
+	@Column(name="PASSWORD")
 	private String password;
+	
+	@Column(name="ACCESS_LEVEL")
 	private int accessLevel;
 
 	public String getUsername() {

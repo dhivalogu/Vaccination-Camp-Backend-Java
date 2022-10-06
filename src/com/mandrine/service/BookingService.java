@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 public class BookingService {
 	
 	
-	public static HashMap<Integer, City> getCityData() throws SQLException
+	public static HashMap<Integer, City> getCityData() throws SQLException, NoSuchFieldException, SecurityException
 	{
 		return CacheDB.getCityCache();
 		
@@ -48,7 +48,7 @@ public class BookingService {
 		return slotList;
 	}
 	
-	public static Collection<City> getOverallData() throws SQLException
+	public static Collection<City> getOverallData() throws SQLException, NoSuchFieldException, SecurityException
 	{
 		CacheDB.loadOverallData();
 		return CacheDB.getCityCache().values();
@@ -69,7 +69,7 @@ public class BookingService {
 
 	}
 	
-	public static Booking populateBookingDetails(Booking bookingData) throws SQLException
+	public static Booking populateBookingDetails(Booking bookingData) throws SQLException,SecurityException
 	{
 		Slot slot=CacheDB.getSlotCache().get(bookingData.getSlotID());
 		Camp camp=CacheDB.getCampCache().get(slot.getCampID());

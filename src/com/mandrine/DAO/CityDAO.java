@@ -1,5 +1,7 @@
 //$Id$
 package com.mandrine.DAO;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,29 +12,24 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.mandrine.cache.CacheDB;
+import com.mandrine.db.DBResource;
 import com.mandrine.model.City;
 import com.mandrine.util.DBConnectionUtil;
+import com.mandrine.util.DataMapper;
 public class CityDAO {
 	static Connection connection=null;
 	
-	public static HashMap<Integer,City> getCityData() throws SQLException
+	public static HashMap<Integer,City> getCityData() throws SQLException,  SecurityException
 	{
 		HashMap<Integer,City> cityData=new HashMap<Integer,City>();
-		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt=connection.prepareStatement("SELECT * FROM \"CITY\";");
-		ResultSet rs=stmt.executeQuery();
-		while(rs.next())
+		DBResource cityResource=DBResource.CITIES;
+		cityResource.setClazz(City.class);
+		ResultSet rs= DBResource.CITIES.fetchAll(new City());
+		List<City> cityList=DataMapper.Map(City.class, rs);
+		for(City city:cityList)
 		{
-			City city=new City();
-			int id=rs.getInt("CITY_ID");
-			city.setCityID(id);
-			city.setName(rs.getString("NAME"));
-			city.setStock(rs.getInt("STOCK"));
-			city.setVaccinatedCount(rs.getInt("VACCINATED_COUNT"));
-			cityData.put(id, city);
-			
+			cityData.put(city.getCityID(), city);
 		}
-		DBConnectionUtil.closeConnection();
 		return cityData;
 		
 	}
