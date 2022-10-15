@@ -1,17 +1,33 @@
 
 package com.mandrine.model;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mandrine.db.Column;
+import com.mandrine.util.DateFormatUtil;
+
 public class People extends Resource{
 	
+	@Column(name="AADHAR")
 	private String AadharID;
+	
+	@Column(name="FIRST_NAME")
 	private String firstName;
+	
+	@Column(name="LAST_NAME")
 	private String lastName;
+	
+	@Column(name="MOBILE")
 	private String mobile;
-	public String DOB;
+	
+	@Column(name="DOB")
+	public Date DOB;
+	
+	@Column(name="DOSAGE COUNT")
 	private int dosageCount;
+	
 	private List<Booking> bookingList=new ArrayList<Booking>();
 	
 	public void setID(String AadharID)
@@ -60,9 +76,9 @@ public class People extends Resource{
 	}
 	public void setDOB(String DOB)
 	{
-		this.DOB=DOB;
+		this.DOB=DateFormatUtil.toDate(DOB);
 	}
-	public String getDOB()
+	public Date getDOB()
 	{
 		return this.DOB;
 	}

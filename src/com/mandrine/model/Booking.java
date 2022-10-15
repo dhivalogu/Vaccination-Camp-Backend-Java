@@ -3,13 +3,22 @@ package com.mandrine.model;
 
 import java.sql.Date;
 
+import com.mandrine.db.Column;
+
 public class Booking extends Resource {
 
+	@Column(name="SLOT_ID")
 	private int slotID;
+	
+	@Column(name="BOOKING_ID")
 	private int bookingID;
+	
+	@Column(name="AADHAR")
 	private String AADHAR;
 	private Date date;
 	private String session;
+	
+	@Column(name="STATUS")
 	private String status;
 	private int campID;
 	private String address;
