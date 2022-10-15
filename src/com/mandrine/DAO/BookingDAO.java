@@ -7,12 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 
 import com.mandrine.cache.CacheDB;
 import com.mandrine.db.DBResource;
 import com.mandrine.model.Booking;
 import com.mandrine.service.BookingService;
 import com.mandrine.util.DBConnectionUtil;
+import com.mandrine.util.DataMapper;
 
 public class BookingDAO {
 	private static Connection connection=null;
@@ -21,6 +23,7 @@ public class BookingDAO {
 		ResultSet keys=DBResource.BOOKINGS.create(bookingData);
 		keys.next();
 		int bookingID=(int) keys.getLong(1);
+		bookingData.setBookingID(bookingID);
 		CacheDB.getBookingCache().put(bookingID,bookingData);
 		CacheDB.getPeopleCache().get(bookingData.getAADHAR()).addToBookingList(bookingData);
 		CacheDB.getSlotCache().get(bookingData.getSlotID()).addToBookingList(bookingData);
@@ -30,28 +33,20 @@ public class BookingDAO {
 	{
 		ResultSet rs=DBResource.BOOKINGS.fetchAll(new Booking());
 		HashMap<Integer,Booking> bookingData=new HashMap<Integer,Booking>();
-		while(rs.next())
+		List<Booking> bookingList=DataMapper.Map(Booking.class, rs);
+		for(Booking bookingDetails:bookingList)
 		{
-			Booking bookingDetails=new Booking();
-			int bookingID=rs.getInt("BOOKING_ID");
-			bookingDetails.setAADHAR(rs.getString("AADHAR"));
-			bookingDetails.setBookingID(bookingID);
-			bookingDetails.setSlotID(rs.getInt("SLOT_ID"));
-			bookingDetails.setStatus(rs.getString("STATUS"));
 			BookingService.populateBookingDetails(bookingDetails);
 			CacheDB.getPeopleCache().get(bookingDetails.getAADHAR()).addToBookingList(bookingDetails);
 			CacheDB.getSlotCache().get(bookingDetails.getSlotID()).addToBookingList(bookingDetails);
-			bookingData.put(bookingID,bookingDetails);
+			bookingData.put(bookingDetails.getBookingID(),bookingDetails);
 		}
 		return bookingData;
 	}
 	public static void update(Booking bookingData) throws SQLException
 	{
 		DBResource.BOOKINGS.update(bookingData);
-//		connection=DBConnectionUtil.openConnection();
-//		PreparedStatement stmt=connection.prepareStatement("UPDATE \"BOOKING_DATA\" SET \"STATUS\"='VACCINATED' WHERE \"BOOKING_ID\"=?");
-//		stmt.setInt(1,bookingData.getBookingID());
-//		stmt.executeUpdate();
+
 	}
 
 }

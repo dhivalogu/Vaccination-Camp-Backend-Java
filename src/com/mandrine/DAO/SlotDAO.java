@@ -15,6 +15,7 @@ import com.mandrine.db.DBResource;
 import com.mandrine.model.Camp;
 import com.mandrine.model.Slot;
 import com.mandrine.util.DBConnectionUtil;
+import com.mandrine.util.DataMapper;
 
 public class SlotDAO {
 	private static Connection connection=null;
@@ -34,18 +35,10 @@ public class SlotDAO {
 	{
 		ResultSet rs=DBResource.SLOTS.fetchAll(new Slot());
 		HashMap<Integer,Slot> slotData=new HashMap<Integer,Slot>();
-		while(rs.next())
+		List<Slot> slotList=DataMapper.Map(Slot.class, rs);
+		for(Slot slot:slotList)
 		{
-			Slot slot=new Slot();
-			int campID=rs.getInt("CAMP_ID");
-			slot.setCampID(campID);
-			slot.setBookings(rs.getInt("BOOKINGS"));
-			slot.setCapacity(rs.getInt("CAPACITY"));
-			slot.setDate(rs.getDate("DATE"));
-			slot.setSession(rs.getString("SESSION"));
-			int slotID=rs.getInt("SLOT_ID");
-			slot.setSlotID(slotID);
-			slotData.put(slotID,slot);
+			slotData.put(slot.getSlotID(),slot);
 			CacheDB.getCampCache().get(slot.getCampID()).addToSlotList(slot);
 			
 		}
