@@ -7,22 +7,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 
 import com.mandrine.cache.CacheDB;
 import com.mandrine.db.DBResource;
 import com.mandrine.model.Camp;
+import com.mandrine.model.City;
 import com.mandrine.service.AdminService;
 import com.mandrine.service.BookingService;
 import com.mandrine.util.DBConnectionUtil;
+import com.mandrine.util.DataMapper;
 import com.mandrine.util.DateFormatUtil;
 
 public class CampDAO {
 	static Connection connection=null;
-	public static HashMap<Integer,Camp> getCampData() throws SQLException
+	public static HashMap<Integer,Camp> fetchAll() throws SQLException
 	{
 		connection=DBConnectionUtil.openConnection();
 		ResultSet rs=DBResource.CAMPS.fetchAll(new Camp());
 		HashMap<Integer,Camp> campData=new HashMap<Integer,Camp>();
+		//List<Camp> campList=DataMapper.Map(Camp.class, rs);
 		while(rs.next())
 		{
 			Camp camp=new Camp();
@@ -43,13 +47,14 @@ public class CampDAO {
 		return campData;
 	}
 	
-	public static void addCamp(Camp camp) throws SQLException
+	public static void create(Camp camp) throws SQLException
 	{
+
 		  CampDAO.connection= DBConnectionUtil.openConnection();
 		  PreparedStatement stmt=connection.prepareStatement("INSERT INTO \"CAMP\" (\"CITY_ID\",\"ADDRESS\",\"DATE\") VALUES(?,?,?::daterange);",Statement.RETURN_GENERATED_KEYS);
 		  stmt.setInt(1, camp.getCityID());
 		  stmt.setString(2,camp.getAddress());
-		  stmt.setObject(3,DateFormatUtil.convertToDateRange(camp.getBeginDate(), camp.getEndDate()));
+		  stmt.setObject(3,camp.getDate());
 		  stmt.executeUpdate();
 		  ResultSet keys=stmt.getGeneratedKeys();
 		  if(keys.next())
@@ -57,8 +62,6 @@ public class CampDAO {
 			  camp.setCampID((int) keys.getLong(1));
 		  }
 		  CacheDB.getCampCache().put(camp.getCampID(),camp);
-		  DBConnectionUtil.closeConnection();
-		  System.out.println(camp.getCityID());
 		  CacheDB.getCityCache().get(camp.getCityID()).setCamp(camp);
 		  AdminService.createSlots(camp);
 	}

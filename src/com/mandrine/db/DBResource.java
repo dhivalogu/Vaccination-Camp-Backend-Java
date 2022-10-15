@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,33 +23,30 @@ import com.mandrine.util.DBConnectionUtil;
 
 public enum DBResource {
 	
-	PEOPLE("PEOPLE",new String[]{"AADHAR","FIRST_NAME","LAST_NAME","DOB","MOBILE","DOSAGE_COUNT"}),
-	BOOKINGS("BOOKING_DATA",new String[] {"BOOKING_ID","AADHAR","SLOT_ID","STATUS"}),
-	CITIES("CITY",new String[] {"CITY_ID","NAME","STOCK","VACCINATED_COUNT"}),
-	CAMPS("CAMP",new String[] {"CAMP_ID","CITY_ID","ADDRESS","DATE"}),
-	SLOTS("SLOTS",new String[] {"SLOT_ID","DATE","SESSION","CAPACITY","BOOKINGS","CAMP_ID"}),
-	CREDENTIALS("CREDENTIALS",new String[] {"USERNAME","PASSWORD","ACCESS_LEVEL"});
+	PEOPLE("PEOPLE","AADHAR"),
+	BOOKINGS("BOOKING_DATA","BOOKING_ID"),
+	CITIES("CITY","CITY_ID"),
+	CAMPS("CAMP","CAMP_ID"),
+	SLOTS("SLOTS","SLOT_ID"),
+	CREDENTIALS("CREDENTIALS","USERNAME");
 	
-	DBResource(String tableName, String[] fields) {
-		this.tableName = tableName;
-		this.fields=fields;
-	}
+	
 	private final  String tableName;
-	private final String[] fields;
+	private final String pKey;
 	private Class clazz=null;
 	/**
 	 * @return the tableName
 	 */
-	
+	DBResource(String tableName,String pKey) {
+		this.tableName = tableName;
+		this.pKey=pKey;
+	}
 	public String getTableName() {
 		return tableName;
 	}
 	/**
 	 * @return the fields
 	 */
-	public String[] getFields() {
-		return fields;
-	}
 	public void setClazz(Class clazz)
 	{
 		this.clazz=clazz;
@@ -62,10 +60,10 @@ public enum DBResource {
 		HashMap<String,Object> conditionMap=getConditionMap(resource);
 		if(!conditionMap.isEmpty())
 		{
-			query=query+" WHERE";
+			query=query+" WHERE ";
 			for(Map.Entry<String, Object> m:conditionMap.entrySet())
 			{
-				query=query+" \""+m.getKey()+"\""+" = ? AND";
+				query=query+m.getKey()+" = ? AND";
 			}
 			query=query.substring(0, query.length()-3);
 		}
@@ -87,7 +85,7 @@ public enum DBResource {
 		connection.close();
 		return rs;
 	}
-	public void create(Resource resource) throws SQLException
+	public ResultSet create(Resource resource) throws SQLException
 	{
 		Connection connection=DBConnectionUtil.openConnection();
 		String query="INSERT INTO \""+tableName+"\"($fields) VALUES($values)";
@@ -98,7 +96,7 @@ public enum DBResource {
 		String values=String.join(",", Collections.nCopies(fieldArray.size(),"?"));
 		query=query.replace("$values", values);
 		System.out.println("");
-		PreparedStatement stmt=connection.prepareStatement(query);
+		PreparedStatement stmt=connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 		int index=1;
 		for(Object obj:fieldMap.values())
 		{
@@ -116,13 +114,65 @@ public enum DBResource {
 			}
 			index++;
 		}
-		System.out.println("");
-//		for(Map.Entry<String, Object> fm:fieldMap.entrySet())
-//		{
-//			fields=query+fm.getKey()+",";
-//		}
+		stmt.executeUpdate();
+		ResultSet rs=stmt.getGeneratedKeys();
+		connection.close();	
+		return rs;
+		
+	}
+	public void update(Resource resource) throws SQLException
+	{
+		Connection connection=DBConnectionUtil.openConnection();
+		String query="UPDATE \""+tableName+"\" SET ";
+		HashMap<String,Object> fieldMap=getConditionMap(resource);
+		Object pKeyField=fieldMap.get("\""+pKey+"\"");
+		fieldMap.remove("\""+pKey+"\"");
+		if(!fieldMap.isEmpty())
+		{
+			for(Map.Entry<String, Object> m:fieldMap.entrySet())
+			{
+				
+				  query=query+m.getKey()+" = ?,";
+			}
+		}
+		query=query.substring(0, query.length()-1)+" WHERE \""+pKey+"\" = ?";
+		PreparedStatement stmt=connection.prepareStatement(query);
+		int index=1;
+		for(Map.Entry<String, Object> m:fieldMap.entrySet())
+		{
+			
+				Object obj=m.getValue();
+				if(obj instanceof Integer)
+				{
+					stmt.setInt(index,(Integer) obj);
+				}
+				if(obj instanceof String)
+				{
+					stmt.setString(index,(String) obj);
+				}
+				if(obj instanceof Date)
+				{
+					stmt.setDate(index, (Date)obj);
+				}
+			
+			index++;
+		}
+		
+		if(pKeyField instanceof Integer)
+		{
+			stmt.setInt(index,(Integer) pKeyField);
+		}
+		if(pKeyField instanceof String)
+		{
+			stmt.setString(index,(String) pKeyField);
+		}
+		stmt.executeUpdate();
+		connection.close();
 		
 		
+	}
+	boolean isPrimaryKey(String key) {
+		return key.equals("\""+pKey+"\"");
 	}
 	public HashMap<String, Object> getConditionMap(Resource resource)
 	{
@@ -139,13 +189,14 @@ public enum DBResource {
 					{
 						if((Integer)o !=0)
 						{
-							conditionMap.put(field.getAnnotation(Column.class).name(), o);
+							String name="\""+field.getAnnotation(Column.class).name()+"\"";
+							conditionMap.put(name, o);
 						}
 					}
 					else
 					{
-						String name=field.getAnnotation(Column.class).name();
-						conditionMap.put(field.getAnnotation(Column.class).name(),o);
+						String name="\""+field.getAnnotation(Column.class).name()+"\"";
+						conditionMap.put(name,o);
 					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {

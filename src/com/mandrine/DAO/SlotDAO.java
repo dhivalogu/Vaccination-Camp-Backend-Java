@@ -18,19 +18,9 @@ import com.mandrine.util.DBConnectionUtil;
 
 public class SlotDAO {
 	private static Connection connection=null;
-	public static void addSlot(Slot slot) throws SQLException
+	public static void create(Slot slot) throws SQLException
 	{
-		  SlotDAO.connection= DBConnectionUtil.openConnection();
-		  PreparedStatement stmt=connection.prepareStatement("INSERT INTO \"SLOTS\"(\"DATE\",\"SESSION\",\"CAPACITY\",\"BOOKINGS\",\"CAMP_ID\") VALUES (?,?,?,?,?)",Statement.RETURN_GENERATED_KEYS);
-		  DBResource.SLOTS.getConditionMap(slot);
-		  DBResource.SLOTS.create(slot);
-		  stmt.setDate(1,slot.getDate());
-		  stmt.setString(2,slot.getSession());
-		  stmt.setInt(3, slot.getCapacity());
-		  stmt.setInt(4, slot.getBookings());
-		  stmt.setInt(5, slot.getCampID());
-		  stmt.executeUpdate();
-		  ResultSet keys=stmt.getGeneratedKeys();
+		  ResultSet keys=DBResource.SLOTS.create(slot);
 		  if(keys.next())
 		  {
 			  slot.setSlotID((int) keys.getLong(1));
@@ -40,7 +30,7 @@ public class SlotDAO {
 		
 	}
 	
-	public static HashMap<Integer,Slot> getSlotData () throws SQLException
+	public static HashMap<Integer,Slot> fetchAll () throws SQLException
 	{
 		ResultSet rs=DBResource.SLOTS.fetchAll(new Slot());
 		HashMap<Integer,Slot> slotData=new HashMap<Integer,Slot>();
@@ -62,12 +52,10 @@ public class SlotDAO {
 		DBConnectionUtil.closeConnection();
 		return slotData;
 	}
-	public static void addBookings(Slot slot) throws SQLException
+	public static void update(Slot slot) throws SQLException
 	{
-		connection=DBConnectionUtil.openConnection();
-		PreparedStatement stmt= connection.prepareStatement("UPDATE \"SLOTS\" SET \"BOOKINGS\"=\"BOOKINGS\"+1 WHERE \"SLOT_ID\"=?;");
-		stmt.setInt(1, slot.getSlotID());
-		stmt.executeUpdate();
+		DBResource.SLOTS.update(slot);
+
 		
 	}
 }

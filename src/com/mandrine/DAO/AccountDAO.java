@@ -12,33 +12,15 @@ import com.mandrine.model.Account;
 import com.mandrine.util.DBConnectionUtil;
 
 public class AccountDAO {
-  private static Connection connection=null;
 
-public static Boolean AccountVerified(Account account) throws SQLException
+public static ResultSet fetch(Account account) throws SQLException
   {
-	  AccountDAO.connection= DBConnectionUtil.openConnection();
-	  ResultSet rs= DBResource.CREDENTIALS.fetchAll(account);;
-	  if(rs.next())
-	  	{
-	  		int accessLevel=Integer.parseInt(rs.getString("ACCESS_LEVEL"));
-	  		account.setAccessLevel(accessLevel);
-	  	    DBConnectionUtil.closeConnection();
-	  		return true;
-	  	}
-	  DBConnectionUtil.closeConnection();
-	  return false;
-	  	
+	  return DBResource.CREDENTIALS.fetchAll(account);	
 	  
   }
-  public static void addAccount(Account account) throws SQLException
+  public static void create(Account account) throws SQLException
   {
-	  AccountDAO.connection= DBConnectionUtil.openConnection();
-	  PreparedStatement stmt=connection.prepareStatement("INSERT INTO \"CREDENTIALS\" VALUES(?,?,?);");
-	  stmt.setString(1,account.getUsername());
-	  stmt.setString(2,account.getPassword());
-	  stmt.setInt(3,account.getAccessLevel());
-	  System.out.println(stmt.executeUpdate()+ " Account Inserted");
-	  DBConnectionUtil.closeConnection();
+	  DBResource.CREDENTIALS.create(account);
 	  CacheDB.loadPeopleCache();
   }
 }
