@@ -32,19 +32,10 @@ public class PeopleDAO {
 		ResultSet rs=DBResource.PEOPLE.fetchAll(new People());
 		HashMap<String,People> peopleData=new HashMap<String,People>();
 		List<People> peopleList=DataMapper.Map(People.class, rs);
-//		while(rs.next())
-//		{
-//			People person=new People();
-//			String id=rs.getString("AADHAR");
-//			person.setID(id);
-//			person.setFirstName(rs.getString("FIRST_NAME"));
-//			person.setLastName(rs.getString("LAST_NAME"));
-//			person.setMobile(rs.getString("MOBILE"));
-//			person.setDOB(rs.getString("DOB"));
-//			person.setDosageCount(rs.getInt("DOSAGE COUNT"));
-//			peopleData.put(id,person);
-//			
-//		}
+		for(People person:peopleList)
+		{
+			peopleData.put(person.getID(),person);
+		}
 		return peopleData;
 	}
 	public static void update(People person) throws SQLException
