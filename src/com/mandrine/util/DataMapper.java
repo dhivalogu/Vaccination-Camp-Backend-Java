@@ -3,6 +3,7 @@ package com.mandrine.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,6 +42,11 @@ public class DataMapper {
 			                else if(field.getType().equals(String.class))
 			                {
 			                	String value=resultSet.getString(name);
+			                	field.set(dto, value);
+			                }
+			                else if(field.getType().equals(Date.class))
+			                {
+			                	Date value=resultSet.getDate(name);
 			                	field.set(dto, value);
 			                }
 			                

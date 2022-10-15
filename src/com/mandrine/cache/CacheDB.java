@@ -33,7 +33,7 @@ public  class CacheDB {
      
      public static void loadPeopleCache() throws SQLException
      {
-    	 peopleCache=PeopleDAO.getPeopleData();
+    	 peopleCache=PeopleDAO.fetchAll();
      }
      
      /**
@@ -45,21 +45,21 @@ public  class CacheDB {
      
      public static void loadCityCache() throws SQLException,SecurityException
      {
-    	 cityCache=CityDAO.getCityData();
+    	 cityCache=CityDAO.fetchAll();
      }
      
      public static void loadCampCache() throws SQLException
      {
-    	 campCache = CampDAO.getCampData();
+    	 campCache = CampDAO.fetchAll();
      }
      
      public static void loadSlotCache() throws SQLException 
      {
-    	 slotCache=SlotDAO.getSlotData();
+    	 slotCache=SlotDAO.fetchAll();
      }
      public static void loadBookingCache() throws SQLException
      {
-    	 bookingCache=BookingDAO.getBookingData();
+    	 bookingCache=BookingDAO.fetchAll();
      }
      public static HashMap<String,People> getPeopleCache() throws SQLException
      {

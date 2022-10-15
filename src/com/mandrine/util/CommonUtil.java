@@ -2,19 +2,15 @@
 package com.mandrine.util;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.mandrine.exception.InvalidRequestException;
-import com.mandrine.model.RequestBody;
 
 public class CommonUtil {
 	
@@ -38,7 +34,7 @@ public class CommonUtil {
    {
 
 	  
-	   String[] requestResources=request.getRequestURI().replace("/VaccinationApp/api/", "").split("/");
+	   String[] requestResources=request.getRequestURI().replace("/api/", "").split("/");
 	   for(String resource:requestResources)
 	   {
 		   if(!CommonUtil.isValidAadhar(resource)&& !isNumber(resource) && !resourceList.contains(resource)) throw new InvalidRequestException();

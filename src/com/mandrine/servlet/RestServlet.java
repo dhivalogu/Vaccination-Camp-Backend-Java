@@ -35,7 +35,7 @@ import com.mandrine.util.AuthenticationUtil;
 import com.mandrine.util.CommonUtil;
 import com.mandrine.util.JSONUtil;
 
-public class AppServlet extends HttpServlet {
+public class RestServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -271,7 +271,7 @@ public class AppServlet extends HttpServlet {
 				person.setLastName(requestJSON.getString("lastName"));
 				person.setMobile(requestJSON.getString("mobile"));
 				person.setDOB(requestJSON.getString("DOB"));
-				person.setDosageCount(-1);
+				person.setDosageCount(0);
 				AccountService.addPerson(person);
 				responseJSON.put("ID", person.getID());
 				responseJSON.put("status-code", 201);

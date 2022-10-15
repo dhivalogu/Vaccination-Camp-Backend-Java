@@ -60,11 +60,14 @@ public class BookingService {
 		{
 			throw new SlotOverflowException("Slot Got Filled! Choose Other Slots");
 		}
-		int bookingID=BookingDAO.doBooking(bookingData);
-		bookingData.setBookingID(bookingID);
 		bookingData.setStatus("UPCOMING");
+		int bookingID=BookingDAO.create(bookingData);
+		bookingData.setBookingID(bookingID);
+		Slot slotUpdateModel=new Slot();
+		slotUpdateModel.setSlotID(slot.getSlotID());
+		slotUpdateModel.setBookings(slot.getBookings()+1);
 		slot.setBookings(slot.getBookings()+1);
-		SlotDAO.addBookings(slot);
+		SlotDAO.update(slotUpdateModel);
 		return populateBookingDetails(bookingData);
 
 	}
