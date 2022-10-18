@@ -41,7 +41,7 @@ public class RestServlet extends HttpServlet {
 		try {
 			
 			Queue<String> resourceQueue = CommonUtil.parseRequest(request);
-			AuthenticationUtil.AuthenticateRequest(request);
+            AuthenticationUtil.AuthenticateRequest(request);
 			String responseJSON = null;
 			String currentResource = null;
 			List responseList = null;
@@ -50,18 +50,7 @@ public class RestServlet extends HttpServlet {
 				int cityID;
 				currentResource = resourceQueue.poll();
 				if (currentResource == null) {
-
-					List<City> cityData = new ArrayList<City>(BookingService.getCityData().values());
-					if (request.getParameter("sortBy") != null) {
-						if (request.getParameter("sortBy").equals("vaccinatedCount")) {
-							cityData.sort((left, right) -> right.getVaccinatedCount() - left.getVaccinatedCount());
-						} else if (request.getParameter("sortBy").equals("stock")) {
-							cityData.sort((left, right) -> right.getStock() - left.getStock());
-						} else
-							throw new InvalidRequestException("Wrong Sort By Value");
-					}
-					responseList = cityData;
-					responseJSON = new Gson().toJson(cityData);
+					responseJSON = new Gson().toJson(BookingService.getCityData().values());
 					break;
 				}
 
