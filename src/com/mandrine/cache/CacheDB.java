@@ -4,7 +4,6 @@ package com.mandrine.cache;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import com.mandrine.DAO.BookingDAO;
 import com.mandrine.DAO.CampDAO;

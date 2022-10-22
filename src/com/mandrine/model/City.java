@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mandrine.cache.CacheDB;
 import com.mandrine.db.Column;
 
 public class City extends Resource{

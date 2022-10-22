@@ -1,6 +1,14 @@
 //$Id$
 package com.mandrine.service;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.JSONException;
+
 import com.mandrine.DAO.BookingDAO;
 import com.mandrine.DAO.SlotDAO;
 import com.mandrine.cache.CacheDB;
@@ -9,15 +17,6 @@ import com.mandrine.model.Booking;
 import com.mandrine.model.Camp;
 import com.mandrine.model.City;
 import com.mandrine.model.Slot;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
-import org.json.JSONException;
-import com.google.gson.Gson;
 
 public class BookingService {
 	

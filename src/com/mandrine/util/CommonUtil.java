@@ -2,6 +2,7 @@
 package com.mandrine.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,6 +34,20 @@ public class CommonUtil {
 		for (String resource : requestResources) {
 			if (!isNumber(resource) && !resourceList.contains(resource))
 				throw new InvalidRequestException();
+		}
+		ListIterator resourceListItr=requestResources.listIterator();
+		HashMap<String,String> restMap=new HashMap<String,String>();
+		while(resourceListItr.hasNext())
+		{
+			String resource=(String) resourceListItr.next();
+			if(resourceListItr.hasNext())
+			{
+				String identifier=(String)resourceListItr.next();
+				if(isNumber(identifier))
+				{
+				restMap.put(resource, identifier);
+				}
+			}
 		}
 		Queue<String> resourceQueue = new LinkedList<String>();
 		resourceQueue.addAll(requestResources);

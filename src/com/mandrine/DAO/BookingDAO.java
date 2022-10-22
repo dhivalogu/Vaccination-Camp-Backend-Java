@@ -1,11 +1,9 @@
 //$Id$
 package com.mandrine.DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,11 +11,9 @@ import com.mandrine.cache.CacheDB;
 import com.mandrine.db.DBResource;
 import com.mandrine.model.Booking;
 import com.mandrine.service.BookingService;
-import com.mandrine.util.DBConnectionUtil;
 import com.mandrine.util.DataMapper;
 
 public class BookingDAO {
-	private static Connection connection=null;
 	public static int create(Booking bookingData) throws SQLException
 	{
 		ResultSet keys=DBResource.BOOKINGS.create(bookingData);

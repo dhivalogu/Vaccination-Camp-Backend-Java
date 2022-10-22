@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -39,12 +41,12 @@ public class RestServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			
+			Logger logger=Logger.getLogger(RestServlet.class.getName());
+			logger.log(Level.INFO, "Received Request At Rest Servlet");
 			Queue<String> resourceQueue = CommonUtil.parseRequest(request);
-            AuthenticationUtil.AuthenticateRequest(request);
+			AuthenticationUtil.AuthenticateRequest(request);
 			String responseJSON = null;
 			String currentResource = null;
-			List responseList = null;
 			switch (resourceQueue.poll()) {
 			case "cities":
 				int cityID;
@@ -66,14 +68,31 @@ public class RestServlet extends HttpServlet {
 						throw new InvalidRequestException();
 					else {
 						currentResource = resourceQueue.poll();
-						Camp campData = cityData.getCamp();
+						List<Camp> campData = cityData.getCampList();
 						if (currentResource == null) {
 							responseJSON = new Gson().toJson(campData);
 							break;
-						} else if (!currentResource.equals("slots"))
+						} else if (!CommonUtil.isNumber(currentResource))
 							throw new InvalidRequestException();
 						else {
-							List<Slot> slotList = campData.getSlotList();
+							int campID=Integer.parseInt(currentResource);
+							currentResource = resourceQueue.poll();
+							Camp camp=null;
+							for(Camp c:campData)
+							{
+								if(c.getCampID()==campID)
+								{
+									camp=c;
+								}
+							}
+							if(currentResource==null)
+							{
+								responseJSON = new Gson().toJson(camp);
+								break;
+							}
+							else if(currentResource.equals("slots"))
+							{
+							List<Slot> slotList = camp.getSlotList();
 							currentResource = resourceQueue.poll();
 							if (currentResource == null) {
 								responseJSON = new Gson().toJson(slotList);
@@ -104,6 +123,7 @@ public class RestServlet extends HttpServlet {
 							}
 
 						}
+						}
 
 					}
 				} else
@@ -112,18 +132,15 @@ public class RestServlet extends HttpServlet {
 			case "people":
 				currentResource = resourceQueue.poll();
 				if (currentResource == null) {
-					HttpSession session=request.getSession(false);
-					if(session.getAttribute("accessLevel").equals("1"))
-					{
+					HttpSession session = request.getSession(false);
+					if (session.getAttribute("accessLevel").equals("1")) {
 						People person = AccountService.getPeopleByID((String) session.getAttribute("user"));
 						responseJSON = new Gson().toJson(person);
-					}
-					else
-					{
+					} else {
 						List<People> people = new ArrayList<People>(AccountService.getPeopleData());
 						responseJSON = new Gson().toJson(people);
 					}
-					
+
 				} else if (CommonUtil.isValidAadhar(currentResource)) {
 					People person = AccountService.getPeopleByID(currentResource);
 					currentResource = resourceQueue.poll();
@@ -141,18 +158,17 @@ public class RestServlet extends HttpServlet {
 				break;
 			case "authentication":
 				AuthenticationUtil.AuthenticateRequest(request);
-				HttpSession session=request.getSession(false);
-				HashMap<String,String> authentication=new HashMap<String,String>();
-				authentication.put("user",(String) session.getAttribute("user"));
-				authentication.put("accessLevel",(String)session.getAttribute("accessLevel"));
+				HttpSession session = request.getSession(false);
+				HashMap<String, String> authentication = new HashMap<String, String>();
+				authentication.put("user", (String) session.getAttribute("user"));
+				authentication.put("accessLevel", (String) session.getAttribute("accessLevel"));
 				responseJSON = new Gson().toJson(authentication);
 				break;
 			case "invalidate":
-				HttpSession session1=request.getSession(false);
+				HttpSession session1 = request.getSession(false);
 				session1.invalidate();
-				
+
 			}
-			
 
 			response.getWriter().print(responseJSON);
 
@@ -161,12 +177,9 @@ public class RestServlet extends HttpServlet {
 			responseJSON.put("Error", "No data found for given values");
 			response.getWriter().print(responseJSON);
 			e.printStackTrace();
-		} 
-		catch(IllegalAccessException e)
-		{
+		} catch (IllegalAccessException e) {
 			response.setStatus(401);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			JSONObject responseJSON = new JSONObject();
 			responseJSON.put("Error", e);
 			response.getWriter().print(responseJSON);
@@ -176,7 +189,6 @@ public class RestServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		JSONObject responseJSON = new JSONObject();
-		
 
 		try {
 			AuthenticationUtil.AuthenticateRequest(request);
@@ -193,10 +205,16 @@ public class RestServlet extends HttpServlet {
 					account.setUsername(requestJSON.getString("username"));
 					account.setPassword(requestJSON.getString("password"));
 					if (AccountService.userAuthentication(account)) {
-						HttpSession session=request.getSession();
-						session.setAttribute("user",account.getUsername());
-						session.setAttribute("accessLevel",Integer.toString(account.getAccessLevel()));
+						HttpSession session = request.getSession();
+						session.setAttribute("user", account.getUsername());
+						session.setAttribute("accessLevel", Integer.toString(account.getAccessLevel()));
 						session.setAttribute("IP", request.getRemoteAddr());
+						Cookie userCookie=new Cookie("user",account.getUsername());
+						Cookie accessCookie=new Cookie("accessLevel",Integer.toString(account.getAccessLevel()));
+						userCookie.setPath("/");
+						accessCookie.setPath("/");
+						response.addCookie(userCookie);
+						response.addCookie(accessCookie);
 						responseJSON.put("username", account.getUsername());
 						responseJSON.put("accessLevel", account.getAccessLevel());
 						responseJSON.put("status-code", 200);
@@ -217,40 +235,57 @@ public class RestServlet extends HttpServlet {
 					response.getWriter().print(new Gson().toJson(city));
 					response.setStatus(201);
 					break;
-
-				} else if (currentResource.equals("camps")) {
+				} else if (!CommonUtil.isNumber(currentResource)) {
+					throw new InvalidRequestException();
+				} else {
+					int cityID = Integer.parseInt(currentResource);
 					currentResource = resourceQueue.poll();
-					if (currentResource == null) {
-						Camp camp = new Camp();
-						camp.setCityID(requestJSON.getInt("cityID"));
-						camp.setAddress(requestJSON.getString("address"));
-						camp.setBeginDate(requestJSON.getString("beginDate"));
-						camp.setEndDate(requestJSON.getString("endDate"));
-						camp.calcAvailDate();
-						AdminService.addCamp(camp);
-						responseJSON.put("message", "Camp Added Successfully");
-						responseJSON.put("status-code", 201);
-						response.getWriter().print(responseJSON);
-					} else if (currentResource.equals("slots")) {
+					if (currentResource.equals("camps")) {
 						currentResource = resourceQueue.poll();
-						if (currentResource.equals("bookings")) {
-							String responseJSON1 = null;
-							System.out.println("At Booking");
-							Booking bookingData = new Booking();
-							bookingData.setAADHAR(requestJSON.getString("aadharID"));
-							bookingData.setSlotID(requestJSON.getInt("slotID"));
-							bookingData.setCampID(requestJSON.getInt("campID"));
-							bookingData.setCityID(requestJSON.getInt("cityID"));
-							responseJSON1 = new Gson().toJson(BookingService.addBooking(bookingData));
-							response.setStatus(201);
-							response.getWriter().print(responseJSON1);
-						} else
+						if (currentResource == null) {
+							Camp camp = new Camp();
+							camp.setCityID(cityID);
+							camp.setAddress(requestJSON.getString("address"));
+							camp.setBeginDate(requestJSON.getString("beginDate"));
+							camp.setEndDate(requestJSON.getString("endDate"));
+							camp.calcAvailDate();
+							AdminService.addCamp(camp);
+							responseJSON.put("message", "Camp Added Successfully");
+							responseJSON.put("status-code", 201);
+							response.getWriter().print(responseJSON);
+						} else if (!CommonUtil.isNumber(currentResource))
 							throw new InvalidRequestException();
+						else {
+							int campID = Integer.parseInt(currentResource);
+							currentResource = resourceQueue.poll();
+							if (currentResource.equals("slots")) {
+								currentResource = resourceQueue.poll();
+								if (CommonUtil.isNumber(currentResource)) {
+									int slotID = Integer.parseInt(currentResource);
+									currentResource = resourceQueue.poll();
+									if (currentResource.equals("bookings")) {
+										String responseJSON1 = null;
+										Booking bookingData = new Booking();
+										bookingData.setAADHAR(requestJSON.getString("aadharID"));
+										bookingData.setSlotID(slotID);
+										bookingData.setCampID(campID);
+										bookingData.setCityID(cityID);
+										responseJSON1 = new Gson().toJson(BookingService.addBooking(bookingData));
+										response.setStatus(201);
+										response.getWriter().print(responseJSON1);
+									} else {
+										throw new InvalidRequestException();
+									}
+								} else
+									throw new InvalidRequestException();
+							} else {
+								throw new InvalidRequestException();
+							}
+						}
 
 					} else
 						throw new InvalidRequestException();
-				} else
-					throw new InvalidRequestException();
+				}
 				break;
 
 			case "people":
@@ -267,7 +302,7 @@ public class RestServlet extends HttpServlet {
 				responseJSON.put("status", "Account Created Successfully");
 				response.getWriter().print(responseJSON);
 				break;
-			
+
 			}
 
 		} catch (SlotOverflowException e) {
@@ -281,7 +316,6 @@ public class RestServlet extends HttpServlet {
 			response.getWriter().print(responseJSON);
 
 		} catch (ExistingDataException e) {
-			System.out.print("Here");
 			responseJSON.put("status-code", "409");
 			responseJSON.put("Error", e);
 			response.getWriter().print(responseJSON);
@@ -303,19 +337,46 @@ public class RestServlet extends HttpServlet {
 			if (currentResource.equals("cities")) {
 				currentResource = resourceQueue.poll();
 				if (CommonUtil.isNumber(currentResource)) {
-					int stock = requestJSON.getInt("stock");
 					int cityID = Integer.parseInt(currentResource);
+					currentResource=resourceQueue.poll();
+					if(currentResource==null)
+					{
+					int stock = requestJSON.getInt("stock");
 					AdminService.updateStock(cityID, stock);
 					responseJSON.put("message", "Stock of given city updated successfully");
-				} else if (currentResource.equals("camps")) {
-					if (resourceQueue.poll().equals("slots") && resourceQueue.poll().equals("bookings")) {
-						Booking bookingDetails = CacheDB.getBookingCache().get(requestJSON.getInt("bookingID"));
-						AdminService.vaccinated(bookingDetails);
-						responseJSON.put("message", "" + bookingDetails.getAADHAR() + " got vaccinated");
+					}
+					else if (currentResource.equals("camps")) {
+
+						currentResource = resourceQueue.poll();
+						if (CommonUtil.isNumber(currentResource)) {
+							int campID = Integer.parseInt(currentResource);
+							currentResource = resourceQueue.poll();
+							if (currentResource.equals("slots")) {
+								currentResource=resourceQueue.poll();
+								if (CommonUtil.isNumber(currentResource)) {
+									int slotID = Integer.parseInt(currentResource);
+									currentResource = resourceQueue.poll();
+									if (currentResource.equals("bookings")) {
+										currentResource = resourceQueue.poll();
+										if (CommonUtil.isNumber(currentResource)) {
+											int bookingID = Integer.parseInt(currentResource);
+											Booking bookingDetails = CacheDB.getBookingCache().get(requestJSON.getInt("bookingID"));
+											AdminService.vaccinated(bookingDetails);
+											responseJSON.put("message", "" + bookingDetails.getAADHAR() + " got vaccinated");
+										} else
+											throw new InvalidRequestException();
+
+									} else
+										throw new InvalidRequestException();
+								} else
+									throw new InvalidRequestException();
+							} else
+								throw new InvalidRequestException();
+						} else
+							throw new InvalidRequestException();
 					} else
 						throw new InvalidRequestException();
-				} else
-					throw new InvalidRequestException();
+				} 
 			} else
 				throw new InvalidRequestException();
 		} catch (Exception e) {
