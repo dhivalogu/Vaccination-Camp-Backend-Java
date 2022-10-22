@@ -1,20 +1,13 @@
 //$Id$
 package com.mandrine.DAO;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.mandrine.cache.CacheDB;
 import com.mandrine.db.DBResource;
 import com.mandrine.model.City;
-import com.mandrine.util.DBConnectionUtil;
 import com.mandrine.util.DataMapper;
 public class CityDAO {
 	static Connection connection=null;

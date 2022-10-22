@@ -95,7 +95,6 @@ public enum DBResource {
 		query=query.replace("$fields", fields);
 		String values=String.join(",", Collections.nCopies(fieldArray.size(),"?"));
 		query=query.replace("$values", values);
-		System.out.println("");
 		PreparedStatement stmt=connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 		int index=1;
 		for(Object obj:fieldMap.values())

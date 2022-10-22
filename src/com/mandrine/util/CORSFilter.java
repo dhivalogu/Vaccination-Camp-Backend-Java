@@ -2,13 +2,13 @@
 package com.mandrine.util;
 
 import java.io.IOException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
  
@@ -40,7 +40,6 @@ public class CORSFilter implements Filter {
       throws IOException, ServletException {
  
     HttpServletRequest request = (HttpServletRequest) servletRequest;
-    System.out.println("CORSFilter HTTP Request: " + request.getMethod());
  
     // Authorize (allow) all domains to consume the content
     ((HttpServletResponse) servletResponse).addHeader("Access-Control-Allow-Origin", "http://localhost:4200");

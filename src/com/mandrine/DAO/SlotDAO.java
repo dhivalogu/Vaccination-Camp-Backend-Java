@@ -1,24 +1,18 @@
 
 package com.mandrine.DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.mandrine.cache.CacheDB;
 import com.mandrine.db.DBResource;
-import com.mandrine.model.Camp;
 import com.mandrine.model.Slot;
 import com.mandrine.util.DBConnectionUtil;
 import com.mandrine.util.DataMapper;
 
 public class SlotDAO {
-	private static Connection connection=null;
 	public static void create(Slot slot) throws SQLException
 	{
 		  ResultSet keys=DBResource.SLOTS.create(slot);

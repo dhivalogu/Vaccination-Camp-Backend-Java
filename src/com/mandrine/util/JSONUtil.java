@@ -15,7 +15,6 @@ public class JSONUtil {
 	public static JSONObject toJSON(HttpServletRequest request) throws IOException
 	{
 		String requestData = request.getReader().lines().collect(Collectors.joining());
-		System.out.print(requestData.length());
 		if(requestData.length()<5)
 		{
 			throw new NullPointerException("Give proper request body!");

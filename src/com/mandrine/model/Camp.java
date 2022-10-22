@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mandrine.cache.CacheDB;
 import com.mandrine.db.Column;
 import com.mandrine.util.DateFormatUtil;
 
@@ -61,7 +60,7 @@ public class Camp extends Resource {
 	}
 
 	public Date getEndDate() {
-		return this.endDate = endDate;
+		return this.endDate;
 	}
 
 	public Date getBeginDate() {
