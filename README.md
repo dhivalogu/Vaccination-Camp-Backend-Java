@@ -31,7 +31,9 @@ A java web application for Vaccination Camp Management System where people can r
 6.Only 10 bookings per slot should be allowed
 
 7.As of now only 2 doses will be allowed for  each person
+
 Use Case Diagram:
+
 <img width="510" alt="Use Case Diagram" src="https://user-images.githubusercontent.com/46838309/198826765-8b9b1ff5-e0b6-4fa3-b01f-bb9bd5ae7c31.png">
 
 Database Design:
